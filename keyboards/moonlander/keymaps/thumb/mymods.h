@@ -54,9 +54,9 @@ bool process_record_custom(uint16_t keycode, keyrecord_t *record) {
     //Make sure that the layers for app switching are handled correctly
     static bool ctl_alt_swap = false;
 
-    // Note that in the following section, the "register" style commands are
-    // required, since the computer needs to know about the mod change
-    // before the actual keypress arrives
+    // Note that in the following section, the "register" style command
+    // "only_mod()" is required, since the computer needs to know about the
+    // mod change before the actual keypress arrives
     if (IS_LAYER_ON(VIRTDESK)) {
         // If we're currently on virtdesktop shortcuts layer, then
         // activate only LCtl and LGui whenever a key is pressed
