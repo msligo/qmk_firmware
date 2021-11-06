@@ -1,0 +1,10 @@
+Add #include "mymods.h" at the bottom of the include list
+At the bottom of the process_record_user() function (bottom of the file)
+replace "return true;" with "return process_record_custom(keycode, record);"
+
+If you change the base repo, you may also need to add
+KEY_OVERRIDE_ENABLE = yes
+to the rules.mk file in the moonlander folder
+and
+#DEFINE AUDIO_INIT_DELAY
+to the config.h folder if you want startup sounds to work
