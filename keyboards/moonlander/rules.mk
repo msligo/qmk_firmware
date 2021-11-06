@@ -29,4 +29,3 @@ MOUSE_SHARED_EP = no
 #project specific files
 SRC += matrix.c
 QUANTUM_LIB_SRC += i2c_master.c
-KEY_OVERRIDE_ENABLE = yes
