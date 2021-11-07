@@ -23,6 +23,11 @@ void caps_send(uint16_t shift_kc, uint16_t unshift_kc, bool *shifted, keyrecord_
     }
 }
 
+// Custom behaviour for Caps Lock key
+// The symbols on the number row must be reprogrammed to work properly
+// with Caps Lock. We also need to make sure they behave correctly when
+// both Caps Lock and Shift are activated
+// If custom behaviour is used, returns true, otherwise returns false
 bool custom_caps(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case KC_LBRACKET:
