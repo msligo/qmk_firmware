@@ -32,8 +32,14 @@ bool process_appshift_layer(uint16_t keycode, keyrecord_t *record) {
     if (IS_LAYER_ON(VIRTDESK)) {
         // If we're currently on virtdesktop shortcuts layer, then
         // activate only LCtl and LGui whenever a key is pressed
-        if (record->event.pressed)
+        if (record->event.pressed) {
+            // If LCtl is still being held from tab shift, we want to register
+            // the shift before changing to virtdesk buttons
+            if (get_mods() == MOD_BIT(KC_LCTL)) {
+                unregister_mods(MOD_BIT(KC_LCTL));
+            }
             only_mod(LCTL_LGUI);
+        }
     }
     else if (IS_LAYER_ON(APPSHIFT)) {
         switch (keycode) {
