@@ -156,27 +156,10 @@ bool process_record_custom(uint16_t keycode, keyrecord_t *record) {
 
     // Custom behaviour for special keys
     switch (keycode) {
-        // Make sure Japanese keyboard key performs all necessary actions
+        // When swapping to/from Japanese mode, need to adjust some system settings
         case TG(JAPANESE):
-            if (record->event.pressed) {
-                // If Japanese mode is being turned on, make sure Caps Lock
-                // is off
-                if (IS_LAYER_OFF(JAPANESE)) {
-                    led_t led_state = host_keyboard_led_state();
-                    if (led_state.caps_lock)
-                        tap_code(KC_CAPSLOCK);
-                }
-
-                // Toggle Japanese IME in software, whether turning Japanese
-                // mode on or off
-                tap_code16(LALT(KC_LSHIFT));
-
-                // If Japanese mode is being turned on, then send the kana
-                // code so we can immediately start typing Hiragana (not
-                // romaji)
-                if (IS_LAYER_OFF(JAPANESE))
-                    tap_code(JP_KANA);
-            }
+            if (record->event.pressed)
+                toggle_japanese();
             break;
 
             // Because the : key is a mod tap with CTRL, it can't send : by
