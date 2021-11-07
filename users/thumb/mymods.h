@@ -4,20 +4,10 @@
 #define LCTL_LGUI  (MOD_BIT(KC_LCTL) | MOD_BIT(KC_LGUI))
 #define SWAP_CTL_ALT KC_F24
 
-bool g_suspend_state = false; // For some reason an error is thrown if this line is absent
+#include "japanese.h"
+#include "my_layers.h"
 
-enum layers {
-    BASE = 0,
-    SYMBOLS,
-    JAPANESE,
-    FN,
-    MEDIA,
-    APPSHIFT,
-    VIRTDESK,
-    LTS,
-    RTS,
-    JPSHTCTS,
-};
+bool g_suspend_state = false; // For some reason an error is thrown if this line is absent
 
 //This function is called if caps lock is active for certain keys
 //If shift is pressed, it sends the standard version of that key
