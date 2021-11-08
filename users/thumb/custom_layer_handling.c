@@ -1,5 +1,7 @@
 #include "custom_layer_handling.h"
 
+bool ctl_alt_swap = false;
+
 // This function is called every time a layer change occurs
 layer_state_t layer_state_set_user(layer_state_t state) {
     static bool is_appshift_on = false;
@@ -7,25 +9,18 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     if (IS_LAYER_ON_STATE(state, APPSHIFT) || IS_LAYER_ON_STATE(state, VIRTDESK))
         is_appshift_on = true;
     // If we're not shifting apps, but the system thinks we are,
-    // then turn off is_appshift_on, and clear all modifiers
+    // then turn off is_appshift_on, turn off ctl_alt_swap, and clear all modifiers
     else if (is_appshift_on) {
         is_appshift_on = false;
+        ctl_alt_swap = false;
         clear_mods();
     }
     return state;
 }
 
-// Identical to set_mods(mods), except it sends the keyboard report immediately
-void only_mod(int8_t mod) {
-    clear_mods();
-    register_mods(mod);
-}
-
 // Make sure that the layers for app switching are handled correctly
 // This function returns false if it wants to halt processing, true otherwise
 bool process_appshift_layer(uint16_t keycode, keyrecord_t *record) {
-    static bool ctl_alt_swap = false;
-
     // Note that in the following section, the "register" style command
     // "only_mod()" is required, since the computer needs to know about the
     // mod change before the actual keypress arrives
@@ -38,7 +33,8 @@ bool process_appshift_layer(uint16_t keycode, keyrecord_t *record) {
             if (get_mods() == MOD_BIT(KC_LCTL)) {
                 unregister_mods(MOD_BIT(KC_LCTL));
             }
-            only_mod(LCTL_LGUI);
+            unregister_mods(~LCTL_LGUI);
+            register_mods(LCTL_LGUI);
         }
     }
     else if (IS_LAYER_ON(APPSHIFT)) {
@@ -54,11 +50,8 @@ bool process_appshift_layer(uint16_t keycode, keyrecord_t *record) {
 
                 return false;
 
-                // If we exit out of the appshift layer, make sure to set
-                // ctl_alt_swap back to false, since this variable isn't cleaned
-                // up by the automatic code that runs when the layer changes
             case MO(5):
-                ctl_alt_swap = false;
+                break;
 
             case MO(6):
                 break;
@@ -69,10 +62,14 @@ bool process_appshift_layer(uint16_t keycode, keyrecord_t *record) {
                 // press, which causes some effects in the computer
             default:
                 if (record->event.pressed) {
-                    if (ctl_alt_swap)
-                        only_mod(MOD_BIT(KC_LCTL));
-                    else
-                        only_mod(MOD_BIT(KC_LALT));
+                    if (ctl_alt_swap) {
+                        unregister_mods(~MOD_BIT(KC_LCTL));
+                        register_mods(MOD_BIT(KC_LCTL));
+                    }
+                    else {
+                        unregister_mods(~MOD_BIT(KC_LALT));
+                        register_mods(MOD_BIT(KC_LALT));
+                    }
                 }
         }
     }
