@@ -44,7 +44,10 @@ bool process_record_custom(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             break;
+            // Handle the push to talk button
+        case PTT:
+            ptt(keycode, record);
+            return false;
     }
     return true;
 }
-
