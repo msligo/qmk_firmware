@@ -12,6 +12,7 @@ void toggle_japanese(void) {
         // Tell the OS to turn on the IME
         tap_code16(LALT(KC_LSHIFT));
         // For Windows, tell it to swap to kana mode immediately
+        wait_ms(50);
         tap_code(JP_KANA);
     }
     else
