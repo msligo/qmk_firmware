@@ -31,7 +31,7 @@ bool process_record_custom(uint16_t keycode, keyrecord_t *record) {
             // default, only ;. This macro sends ; if shift is pressed, and
             // : if shift is not pressed
             // See https://docs.qmk.fm/#/mod_tap?id=intercepting-mod-taps
-        case LCTL_T(KC_COLN):
+        case MT(MOD_LCTL, KC_SCOLON):
             if (record->tap.count && record->event.pressed) {
                 if (get_mods() & MOD_MASK_SHIFT) {
                     uint8_t temp_mod_state = get_mods();
