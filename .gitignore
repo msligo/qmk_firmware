@@ -3,6 +3,7 @@
 *.swp
 *~
 .DS_Store
+._*
 
 # Build artifacts
 .clang_complete
@@ -18,7 +19,6 @@
 
 # QMK-specific
 api_data/v1
-doxygen/
 quantum/version.h
 *.bin
 *.eep
@@ -28,8 +28,6 @@ quantum/version.h
 
 # Old-style QMK Makefiles
 /keyboards/*/Makefile
-!/keyboards/ergodox_ez/
-!/keyboards/planck/
 
 # Eclipse/PyCharm/Other IDE Settings
 *.iml
@@ -83,6 +81,10 @@ user_song_list.h
 /util/wsl_downloaded
 /util/win_downloaded
 /layouts/
+/keyboards/
+!/keyboards/ergodox_ez/
+!/keyboards/planck/
+!/keyboards/moonlander/
 
 # clangd
 compile_commands.json
