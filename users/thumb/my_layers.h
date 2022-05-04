@@ -5,6 +5,7 @@ enum layers {
     BASE = 0,
     SYMBOLS,
     JAPANESE,
+    GAMING,
     FN,
     MEDIA,
     APPSHIFT,
