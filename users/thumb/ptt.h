@@ -2,7 +2,7 @@
 #define PTT_H
 
 #include QMK_KEYBOARD_H
-#define PTT LALT(LGUI(LCTL(LSFT(KC_F22))))
+#define PTT KC_F20
 
 void ptt(uint16_t keycode, keyrecord_t *record);
 
