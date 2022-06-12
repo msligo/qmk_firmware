@@ -15,7 +15,7 @@ void ptt(uint16_t keycode, keyrecord_t *record) {
         tap_code16(PTT);
         // This line disables the colour code in the keymap.c file
         keyboard_config.disable_layer_led = true;
-        rgb_matrix_set_color_all(RGB_RED);
+        rgb_matrix_sethsv_noeeprom(HSV_RED);
         rgb_matrix_mode_noeeprom(RGB_MATRIX_BREATHING);
     }
     else {
