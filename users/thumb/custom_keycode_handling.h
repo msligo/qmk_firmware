@@ -6,6 +6,7 @@
 #include "shift_caps.h"
 #include "custom_layer_handling.h"
 #include "ptt.h"
+#include "dimlights.h"
 
 bool process_record_custom(uint16_t keycode, keyrecord_t *record);
 

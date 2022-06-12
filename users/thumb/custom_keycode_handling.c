@@ -48,6 +48,10 @@ bool process_record_custom(uint16_t keycode, keyrecord_t *record) {
         case PTT:
             ptt(keycode, record);
             return false;
+            // DIMLIGHTS turns off all the LEDs on the keyboard
+        case DIMLIGHTS:
+            dimlights(keycode, record);
+            return false;
     }
     return true;
 }

@@ -4,3 +4,4 @@ SRC += japanese.c \
 	   custom_layer_handling.c \
 	   custom_keycode_handling.c \
 	   ptt.c \
+	   dimlights.c \
