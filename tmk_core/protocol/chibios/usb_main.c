@@ -49,6 +49,14 @@
 extern keymap_config_t keymap_config;
 #endif
 
+#ifdef RAW_ENABLE
+#    include "raw_hid.h"
+#endif
+
+#ifdef ORYX_ENABLE
+#    include "oryx.h"
+#endif
+
 #ifdef WEBUSB_ENABLE
 #    include "webusb.h"
 #endif
@@ -175,7 +183,6 @@ static const USBEndpointConfig shared_ep_config = {
     NULL                   /* SETUP buffer (not a SETUP endpoint) */
 };
 #endif
-
 
 #ifdef WEBUSB_ENABLE
 /** Microsoft OS 2.0 Descriptor. This is used by Windows to select the USB driver for the device.
@@ -363,8 +370,12 @@ static usb_driver_configs_t drivers = {
     .console_driver = QMK_USB_DRIVER_CONFIG(CONSOLE, 0, true),
 #endif
 #ifdef RAW_ENABLE
-#    define RAW_IN_CAPACITY 4
-#    define RAW_OUT_CAPACITY 4
+#    ifndef RAW_IN_CAPACITY
+#        define RAW_IN_CAPACITY 4
+#    endif
+#    ifndef RAW_OUT_CAPACITY
+#        define RAW_OUT_CAPACITY 4
+#    endif
 #    define RAW_IN_MODE USB_EP_MODE_TYPE_INTR
 #    define RAW_OUT_MODE USB_EP_MODE_TYPE_INTR
     .raw_driver = QMK_USB_DRIVER_CONFIG(RAW, 0, false),
@@ -387,10 +398,10 @@ static usb_driver_configs_t drivers = {
 #endif
 
 #ifdef WEBUSB_ENABLE
-#  define WEBUSB_IN_CAPACITY 4
-#  define WEBUSB_OUT_CAPACITY 4
-#  define WEBUSB_IN_MODE USB_EP_MODE_TYPE_INTR
-#  define WEBUSB_OUT_MODE USB_EP_MODE_TYPE_INTR
+#    define WEBUSB_IN_CAPACITY 4
+#    define WEBUSB_OUT_CAPACITY 4
+#    define WEBUSB_IN_MODE USB_EP_MODE_TYPE_INTR
+#    define WEBUSB_OUT_MODE USB_EP_MODE_TYPE_INTR
     .webusb_driver = QMK_USB_DRIVER_CONFIG(WEBUSB, 0, false),
 #endif
 #ifdef JOYSTICK_ENABLE
@@ -459,9 +470,9 @@ static inline void usb_event_wakeup_handler(void) {
     suspend_wakeup_init();
     usb_device_state_set_resume(USB_DRIVER.configuration != 0, USB_DRIVER.configuration);
 #ifdef SLEEP_LED_ENABLE
-            sleep_led_disable();
-            // NOTE: converters may not accept this
-            led_set(host_keyboard_leds());
+    sleep_led_disable();
+    // NOTE: converters may not accept this
+    led_set(host_keyboard_leds());
 #endif /* SLEEP_LED_ENABLE */
 }
 
@@ -1126,7 +1137,7 @@ void console_task(void) {
     uint8_t buffer[CONSOLE_EPSIZE];
     size_t  size = 0;
     do {
-        size_t size = chnReadTimeout(&drivers.console_driver.driver, buffer, sizeof(buffer), TIME_IMMEDIATE);
+        size = chnReadTimeout(&drivers.console_driver.driver, buffer, sizeof(buffer), TIME_IMMEDIATE);
         if (size > 0) {
             console_receive(buffer, size);
         }
@@ -1141,7 +1152,15 @@ void raw_hid_send(uint8_t *data, uint8_t length) {
     if (length != RAW_EPSIZE) {
         return;
     }
+
+#    ifdef ORYX_ENABLE
+    if (chnWriteTimeout(&drivers.raw_driver.driver, data, length, TIME_IMMEDIATE) != length) {
+        rawhid_state.pairing = false;
+        rawhid_state.paired  = false;
+    }
+#    else
     chnWrite(&drivers.raw_driver.driver, data, length);
+#    endif
 }
 
 __attribute__((weak)) void raw_hid_receive(uint8_t *data, uint8_t length) {
@@ -1154,7 +1173,7 @@ void raw_hid_task(void) {
     uint8_t buffer[RAW_EPSIZE];
     size_t  size = 0;
     do {
-        size_t size = chnReadTimeout(&drivers.raw_driver.driver, buffer, sizeof(buffer), TIME_IMMEDIATE);
+        size = chnReadTimeout(&drivers.raw_driver.driver, buffer, sizeof(buffer), TIME_IMMEDIATE);
         if (size > 0) {
             raw_hid_receive(buffer, size);
         }
@@ -1165,15 +1184,15 @@ void raw_hid_task(void) {
 
 #ifdef WEBUSB_ENABLE
 void webusb_send(uint8_t *data, uint8_t length) {
-    if(chnWriteTimeout(&drivers.webusb_driver.driver, data, length, TIME_IMMEDIATE) != length){
-        webusb_state.paired = false;
+    if (chnWriteTimeout(&drivers.webusb_driver.driver, data, length, TIME_IMMEDIATE) != length) {
+        webusb_state.paired  = false;
         webusb_state.pairing = false;
     }
 }
 
-  // Users should #include "raw_hid.h" in their own code
-  // and implement this function there. Leave this as weak linkage
-  // so users can opt to not handle data coming in.
+// Users should #include "raw_hid.h" in their own code
+// and implement this function there. Leave this as weak linkage
+// so users can opt to not handle data coming in.
 
 void webusb_task(void) {
     uint8_t buffer[WEBUSB_EPSIZE];
@@ -1202,7 +1221,7 @@ void midi_ep_task(void) {
     uint8_t buffer[MIDI_STREAM_EPSIZE];
     size_t  size = 0;
     do {
-        size_t size = chnReadTimeout(&drivers.midi_driver.driver, buffer, sizeof(buffer), TIME_IMMEDIATE);
+        size = chnReadTimeout(&drivers.midi_driver.driver, buffer, sizeof(buffer), TIME_IMMEDIATE);
         if (size > 0) {
             MIDI_EventPacket_t event;
             recv_midi_packet(&event);
