@@ -3,7 +3,7 @@
 
 #include QMK_KEYBOARD_H
 #include "my_layers.h"
-#include "keymap_jp.h"
+#include "keymap_japanese.h"
 
 void toggle_japanese(void);
 #endif
