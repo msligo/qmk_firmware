@@ -45,7 +45,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define OLATB           0x15
 
 extern i2c_status_t mcp23018_status;
-#define ERGODOX_EZ_I2C_TIMEOUT 100
+#ifndef ERGODOX_EZ_I2C_TIMEOUT
+#    define ERGODOX_EZ_I2C_TIMEOUT 80
+#endif
 
 void init_ergodox(void);
 void ergodox_blink_all_leds(void);
@@ -137,7 +139,7 @@ typedef union {
   struct {
     uint8_t    led_level :3;
     bool       disable_layer_led   :1;
-    bool       rgb_matrix_enable   :1;
+    bool       placeholder   :1;
   };
 } keyboard_config_t;
 

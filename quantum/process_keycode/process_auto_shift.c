@@ -95,6 +95,7 @@ __attribute__((weak)) bool get_auto_shift_no_auto_repeat(uint16_t keycode, keyre
 __attribute__((weak)) void autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_t *record) {
     if (shifted) {
         add_weak_mods(MOD_BIT(KC_LSFT));
+        send_keyboard_report();
     }
     register_code16((IS_RETRO(keycode)) ? keycode & 0xFF : keycode);
 }
@@ -123,7 +124,12 @@ bool get_autoshift_shift_state(uint16_t keycode) {
 /** \brief Restores the shift key if it was cancelled by Auto Shift */
 static void autoshift_flush_shift(void) {
     autoshift_flags.holding_shift = false;
-    del_weak_mods(MOD_BIT(KC_LSFT));
+#    ifdef CAPS_WORD_ENABLE
+    if (!is_caps_word_on())
+#    endif
+    {
+        del_weak_mods(MOD_BIT(KC_LSFT));
+    }
     if (autoshift_flags.cancelling_lshift) {
         autoshift_flags.cancelling_lshift = false;
         add_mods(MOD_BIT(KC_LSFT));

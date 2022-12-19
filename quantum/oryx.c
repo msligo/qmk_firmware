@@ -42,6 +42,13 @@ void raw_hid_receive(uint8_t *data, uint8_t length) {
             }
             pairing_validate_eeprom_handler();
             break;
+
+        case ORYX_SET_LAYER:
+            if(rawhid_state.paired == true) {
+                layer_clear();
+                layer_on(param[0]);
+            }
+            break;
     }
 }
 
@@ -98,19 +105,26 @@ void pairing_init_handler(void) {
     raw_hid_send(event, RAW_EPSIZE);
 }
 
-void pairing_validate_handler() {
-    bool    valid = true;
-    uint8_t event[RAW_EPSIZE];
+bool compare_sequences(keypos_t a[PAIRING_SEQUENCE_SIZE], keypos_t b[PAIRING_SEQUENCE_SIZE]) {
+    bool valid = true;
     for (uint8_t i = 0; i < PAIRING_SEQUENCE_SIZE; i++) {
-        if (keyboard_pairing_sequence[i].row != host_pairing_sequence[i].row) {
+        if (a[i].row != b[i].row) {
             valid = false;
             break;
         }
-        if (keyboard_pairing_sequence[i].col != host_pairing_sequence[i].col) {
+        if (a[i].col != b[i].col) {
             valid = false;
             break;
         }
     }
+    return valid;
+}
+
+void pairing_validate_handler() {
+    
+    uint8_t event[RAW_EPSIZE];
+    bool    valid = compare_sequences(keyboard_pairing_sequence, host_pairing_sequence);
+
     if (valid == true) {
         event[0]            = ORYX_EVT_PAIRING_SUCCESS;
         rawhid_state.paired = true;
@@ -119,6 +133,7 @@ void pairing_validate_handler() {
         event[0]            = ORYX_EVT_PAIRING_FAILED;
         rawhid_state.paired = false;
     }
+
     event[1]             = ORYX_STOP_BIT;
     rawhid_state.pairing = false;
     raw_hid_send(event, sizeof(event));
@@ -129,7 +144,8 @@ keypos_t get_random_keypos(void) {
     uint8_t  row = rand() % MATRIX_ROWS;
     keypos_t pos = {.col = col, .row = row};
 
-    if (keymap_key_to_keycode(0, pos) != KC_NO) {
+    uint16_t keycode = keymap_key_to_keycode(0, pos);
+    if (keycode >= KC_A && keycode <= KC_SLASH) {
         return pos;
     } else {
         return get_random_keypos();
@@ -170,6 +186,7 @@ bool process_record_oryx(uint16_t keycode, keyrecord_t *record) {
                 host_pairing_sequence[pairing_input_index++] = record->event.key;
                 pairing_key_input_event();
             }
+            wait_ms(1000);
             if (pairing_input_index == PAIRING_SEQUENCE_SIZE) {
                 rawhid_state.pairing = false;
                 pairing_input_index  = 0;
@@ -192,6 +209,7 @@ bool process_record_oryx(uint16_t keycode, keyrecord_t *record) {
 
 void layer_state_set_oryx(layer_state_t state) {
     if (rawhid_state.paired) {
+        wait_ms(50);
         uint8_t event[RAW_EPSIZE];
         event[0] = ORYX_EVT_LAYER;
         event[1] = get_highest_layer(state);

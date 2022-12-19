@@ -63,6 +63,9 @@ static void         unselect_rows(void);
 static void         select_row(uint8_t row);
 
 static uint8_t mcp23018_reset_loop;
+#ifdef RGBLIGHT_ENABLE
+extern bool i2c_rgblight;
+#endif
 
 void matrix_init_custom(void) {
     // initialize row and col
@@ -96,6 +99,10 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
                 ergodox_blink_all_leds();
 #ifdef RGB_MATRIX_ENABLE
                 rgb_matrix_init();  // re-init driver on reconnect
+#endif
+#ifdef RGBLIGHT_ENABLE
+                i2c_rgblight = true; // re-enable rgb light
+                rgblight_set();
 #endif
             }
         }
